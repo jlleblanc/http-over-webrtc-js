@@ -1,5 +1,5 @@
 {
-  "name": "http-over-webrtc-monorepo",
+  "name": "http-over-webrtc-js",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -10,6 +10,10 @@
     "test": "npm run test --workspaces"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "@types/ws": "^8.18.1",
+    "esbuild": "^0.27.2",
+    "http-server": "^14.1.1",
+    "typescript": "^5.0.0",
+    "ws": "^8.18.3"
   }
 }
