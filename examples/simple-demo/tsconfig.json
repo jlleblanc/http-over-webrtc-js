@@ -1,13 +1,26 @@
 {
+    "extends": "../../tsconfig.json",
     "compilerOptions": {
         "target": "ES2020",
         "module": "commonjs",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": "../../"
     },
     "include": [
         "src/**/*"
+    ],
+    "references": [
+        {
+            "path": "../../packages/client"
+        },
+        {
+            "path": "../../packages/server"
+        },
+        {
+            "path": "../../packages/shared"
+        }
     ]
 }

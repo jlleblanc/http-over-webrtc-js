@@ -1,36 +1,32 @@
-import { WebRtcHttpBridge } from "@http-over-webrtc/client";
-
-const statusEl = document.getElementById('status')!;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@http-over-webrtc/client");
+const statusEl = document.getElementById('status');
 const ws = new WebSocket('ws://localhost:8080');
 const pc = new RTCPeerConnection({
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 });
-
 // Create Data Channel
 const dc = pc.createDataChannel("http-proxy");
-const bridge = new WebRtcHttpBridge(dc);
-
+const bridge = new client_1.WebRtcHttpBridge(dc);
 dc.onopen = () => {
     console.log("DataChannel Open!");
     statusEl.innerHTML = "Connected! Loading /p2p/index.html...";
-
     // Register Service Worker
     navigator.serviceWorker.register('./sw.js')
         .then(() => {
-            console.log("SW Registered");
-            // Give SW a moment to activate and claim
-            setTimeout(() => {
-                const iframe = document.getElementById('content') as HTMLIFrameElement;
-                iframe.src = "/p2p/index.html";
-            }, 1000);
-        })
+        console.log("SW Registered");
+        // Give SW a moment to activate and claim
+        setTimeout(() => {
+            const iframe = document.getElementById('content');
+            iframe.src = "/p2p/index.html";
+        }, 1000);
+    })
         .catch(err => console.error(err));
 };
-
 // Generate random client ID
 const clientId = "client-" + Math.floor(Math.random() * 100000);
 const targetId = "host";
-
 pc.onicecandidate = (event) => {
     if (event.candidate) {
         ws.send(JSON.stringify({
@@ -40,31 +36,28 @@ pc.onicecandidate = (event) => {
         }));
     }
 };
-
 ws.onopen = async () => {
     console.log('Connected to signaling server');
     ws.send(JSON.stringify({ type: 'register', id: clientId }));
-
     // Create Offer
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-
     ws.send(JSON.stringify({
         type: 'signal',
         target: targetId,
         payload: { type: 'offer', offer }
     }));
 };
-
 ws.onmessage = async (event) => {
     const msg = JSON.parse(event.data);
-
     if (msg.type === 'signal') {
         const payload = msg.payload;
         if (payload.type === 'answer') {
             await pc.setRemoteDescription(payload.answer);
-        } else if (payload.type === 'candidate') {
+        }
+        else if (payload.type === 'candidate') {
             await pc.addIceCandidate(payload.candidate);
         }
     }
 };
+//# sourceMappingURL=client.js.map

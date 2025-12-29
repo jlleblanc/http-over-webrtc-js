@@ -1,0 +1,29 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@http-over-webrtc/client": [
+                "packages/client/src"
+            ],
+            "@http-over-webrtc/server": [
+                "packages/server/src"
+            ],
+            "@http-over-webrtc/shared": [
+                "packages/shared/src"
+            ]
+        }
+    },
+    "files": [],
+    "references": [
+        {
+            "path": "./packages/client"
+        },
+        {
+            "path": "./packages/server"
+        },
+        {
+            "path": "./packages/shared"
+        }
+    ]
+}

@@ -100,6 +100,8 @@ export class WebRtcHttpBridge {
         return bytes.buffer;
     }
 
+    private queue: TunnelResponse[] = [];
+
     private setupServiceWorker() {
         if (!navigator.serviceWorker) return;
 
@@ -132,12 +134,35 @@ export class WebRtcHttpBridge {
                 }
             }
         });
+
+        if (!navigator.serviceWorker.controller) {
+            navigator.serviceWorker.addEventListener("controllerchange", () => {
+                console.log("[Bridge] SW Controller changed/active. Flushing queue:", this.queue.length);
+                this.flushQueue();
+            });
+        }
     }
 
     private sendToSw(msg: TunnelResponse) {
         if (navigator.serviceWorker.controller) {
+            this.postToSw(msg);
+        } else {
+            console.log("[Bridge] Queuing message, no SW controller");
+            this.queue.push(msg);
+        }
+    }
+
+    private postToSw(msg: TunnelResponse) {
+        if (navigator.serviceWorker.controller) {
             const transferList = (msg.isBinary && msg.body instanceof ArrayBuffer) ? [msg.body] : [];
             navigator.serviceWorker.controller.postMessage(msg, transferList);
+        }
+    }
+
+    private flushQueue() {
+        while (this.queue.length > 0) {
+            const msg = this.queue.shift();
+            if (msg) this.postToSw(msg);
         }
     }
 }
